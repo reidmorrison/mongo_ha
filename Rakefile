@@ -9,10 +9,10 @@ task :gem do
 end
 
 task :publish => :gem do
-  system "git tag -a v#{BatchJob::VERSION} -m 'Tagging #{BatchJob::VERSION}'"
+  system "git tag -a v#{MongoHA::VERSION} -m 'Tagging #{MongoHA::VERSION}'"
   system "git push --tags"
-  system "gem push mongo_ha-#{BatchJob::VERSION}.gem"
-  system "rm mongo_ha-#{BatchJob::VERSION}.gem"
+  system "gem push mongo_ha-#{MongoHA::VERSION}.gem"
+  system "rm mongo_ha-#{MongoHA::VERSION}.gem"
 end
 
 desc "Run Test Suite"

@@ -1,23 +1,38 @@
-mongo_ha
-========
+# mongo_ha
 
 High availability for the mongo ruby driver. Automatic reconnects and recovery when replica-set changes, etc.
 
+## Status
+
+Production Ready: Used every day in an enterprise environment across
+remote data centers.
+
 ## Overview
 
-Adds methods to the Mongo Ruby driver to support retries on connection failure.
+Tired of the mongo ruby driver throwing exceptions just because a server in the
+replica-set starts or stops?
+
+`mongo_ha` quietly handles replica-set changes, replica-set master re-election,
+and transient network failures without blowing up your application.
+
+This gem does not replace the `mongo` ruby driver, it adds methods and patches
+others in the Mongo Ruby driver to make it support automatic reconnection and
+retries on connection failure.
 
 In the event of a connection failure, only one thread will attempt to re-establish
 connectivity to the Mongo server(s). This is to prevent swamping the mongo
 servers with reconnect attempts.
 
-Retries are initially performed quickly in case it is brief network issue
+Retries are initially performed quickly in case it is a brief network issue
 and then backs off to give the replica-set time to elect a new master.
 
-Currently Only Supports Ruby Mongo driver v1.11.x
+Currently Only Supports Ruby Mongo driver v1.11.x. Submit an issue if other versions
+need support too.
 
-mongo_ha transparently supports MongoMapper since it uses the mongo ruby driver
-that is patched by loading this gem.
+`mongo_ha` transparently supports `MongoMapper` since it uses the mongo ruby driver
+that is patched by loading this gem. Earlier versions of Mongoid will also benefit
+from `mongo_ha`, the latest version of Mongoid uses Moped that should be avoided and is
+due to be replaced.
 
 Mongo Router processes will often return a connection failure on their side
 as an OperationFailure. This code will also retry automatically when the router
@@ -67,9 +82,9 @@ Or for standalone environments
 gem install mongo_ha
 ```
 
-If you are also using SemanticLogger, place 'mongo_ha' below 'semantic_logger'
-and/or 'rails_semantic_logger' in the Gemfile. This way it will create a logger
-just for Mongo::MongoClient to improve the log output during connection recovery.
+If you are also using SemanticLogger, place `mongo_ha` below `semantic_logger`
+and/or `rails_semantic_logger` in the `Gemfile`. This way it will create a logger
+just for `Mongo::MongoClient` to improve the log output during connection recovery.
 
 ## Configuration
 
@@ -135,6 +150,15 @@ Using the above default values, will result in retry connects at the following i
 
    0.1 0.2 0.4 0.8 1.6 3.2 5 5 5 5  ....
 
+## Testing
+
+There is really only one place to test something like `mongo_ha` and that is in
+a high volume mission critical production environment.
+The initial code in this gem was created over 2 years with MongoDB running in an
+enterprise production environment with hundreds of connections to Mongo servers
+in remote data centers across a WAN. It adds high availability to standalone
+MongoDB servers, replica-sets, and sharded clusters.
+
 ## Issues
 
 If the following output appears after adding the above connection options:
@@ -146,4 +170,4 @@ reconnect_retry_multiplier is not a valid option for Mongo::MongoClient
 reconnect_max_retry_seconds is not a valid option for Mongo::MongoClient
 ```
 
-Then the `mongo_ha` gem has not been loaded prior to connecting to Mongo
+Then the `mongo_ha` gem was not loaded prior to connecting to Mongo
