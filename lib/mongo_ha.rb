@@ -11,11 +11,11 @@ if defined?(SemanticLogger)
 end
 
 # Add in retry methods
-Mongo::MongoClient.include(MongoHA::MongoClient::InstanceMethods)
+Mongo::MongoClient.send(:include, MongoHA::MongoClient::InstanceMethods)
 
 # Ensure connection is checked back into the pool when exceptions are thrown
 #   The following line is no longer required with Mongo V1.12 and above
-Mongo::Networking.include(MongoHA::Networking::InstanceMethods)
+Mongo::Networking.send(:include, MongoHA::Networking::InstanceMethods)
 
 # Wrap critical Mongo methods with retry_on_connection_failure
 {
