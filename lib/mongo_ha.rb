@@ -3,13 +3,6 @@ require 'mongo_ha/version'
 require 'mongo_ha/mongo_client'
 require 'mongo_ha/networking'
 
-# Give MongoClient a class-specific logger if SemanticLogger is available
-# to give better logging information during a connection recovery scenario
-if defined?(SemanticLogger)
-  Mongo::MongoClient.send(:include, SemanticLogger::Loggable)
-  Mongo::MongoClient.send(:define_method, :logger) { super() }
-end
-
 # Add in retry methods
 Mongo::MongoClient.send(:include, MongoHA::MongoClient::InstanceMethods)
 

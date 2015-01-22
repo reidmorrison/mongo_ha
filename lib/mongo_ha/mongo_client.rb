@@ -35,6 +35,21 @@ module MongoHA
       # Add retry logic to MongoClient
       def self.included(base)
         base.class_eval do
+          # Give MongoClient a class-specific logger if SemanticLogger V2.12 or above is available
+          # to give better logging information during a connection recovery scenario
+          if defined?(SemanticLogger::DebugAsTraceLogger)
+            # Map Debug level calls to trace to reduce log file clutter
+            @@logger = SemanticLogger::DebugAsTraceLogger.new(self)
+
+            def self.logger
+              @@logger
+            end
+
+            def logger
+              self.class.logger
+            end
+          end
+
           alias_method :receive_message_original, :receive_message
           alias_method :connect_original, :connect
           alias_method :valid_opts_original, :valid_opts
