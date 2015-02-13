@@ -113,7 +113,7 @@ module MongoHA
         rescue Mongo::ConnectionFailure => exc
           # Retry if reconnected, but only once to prevent an infinite loop
           logger.warn "Connection Failure: '#{exc.message}' [#{exc.error_code}]"
-          if !retried && reconnect
+          if !retried && _reconnect
             retried = true
             # TODO There has to be a way to flush the connection pool of all inactive connections
             retry
@@ -154,7 +154,7 @@ module MongoHA
       # per connection will attempt to re-establish the connection
       #
       # Returns whether the connection is connected again
-      def reconnect
+      def _reconnect
         logger.debug "Going to reconnect"
 
         # Prevent other threads from invoking reconnect logic at the same time
