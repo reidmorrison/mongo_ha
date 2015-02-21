@@ -26,13 +26,12 @@ servers with reconnect attempts.
 Retries are initially performed quickly in case it is a brief network issue
 and then backs off to give the replica-set time to elect a new master.
 
-Currently Only Supports Ruby Mongo driver v1.11.x. Submit an issue if other versions
-need support too.
+Supports Ruby Mongo driver V1.x.x
 
 `mongo_ha` transparently supports `MongoMapper` since it uses the mongo ruby driver
 that is patched by loading this gem. Earlier versions of Mongoid will also benefit
-from `mongo_ha`, the latest version of Mongoid uses Moped that should be avoided and is
-due to be replaced.
+from `mongo_ha`, the latest version of Mongoid uses Moped that should be avoided
+since it is due to be replaced by the Ruby Mongo driver V2 when it is released.
 
 Mongo Router processes will often return a connection failure on their side
 as an OperationFailure. This code will also retry automatically when the router

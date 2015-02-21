@@ -1,14 +1,9 @@
 require 'mongo'
 require 'mongo_ha/version'
 require 'mongo_ha/mongo_client'
-require 'mongo_ha/networking'
 
 # Add in retry methods
 Mongo::MongoClient.send(:include, MongoHA::MongoClient::InstanceMethods)
-
-# Ensure connection is checked back into the pool when exceptions are thrown
-#   The following line is no longer required with Mongo V1.12 and above
-Mongo::Networking.send(:include, MongoHA::Networking::InstanceMethods)
 
 # Wrap critical Mongo methods with retry_on_connection_failure
 {
