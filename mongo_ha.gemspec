@@ -12,11 +12,11 @@ Gem::Specification.new do |s|
   s.authors     = ['Reid Morrison']
   s.email       = ['reidmo@gmail.com']
   s.homepage    = 'https://github.com/reidmorrison/mongo_ha'
-  s.summary     = "High availability for the mongo ruby driver"
-  s.description = "Automatic reconnects and recovery when replica-set changes, or connections are lost, with transparent recovery"
-  s.files       = Dir["lib/**/*", "LICENSE.txt", "Rakefile", "README.md"]
-  s.test_files  = Dir["test/**/*"]
-  s.license     = "Apache License V2.0"
+  s.summary     = 'High availability for the mongo ruby driver'
+  s.description = 'Automatic reconnects and recovery when replica-set changes, or connections are lost, with transparent recovery'
+  s.files       = Dir['lib/**/*', 'LICENSE.txt', 'Rakefile', 'README.md']
+  s.test_files  = Dir['test/**/*']
+  s.license     = 'Apache License V2.0'
   s.has_rdoc    = true
-  s.add_dependency 'mongo', '~> 1.12'
+  s.add_dependency 'mongo', '~> 1.10'
 end

@@ -7,14 +7,12 @@ Mongo::MongoClient.send(:include, MongoHA::MongoClient::InstanceMethods)
 
 # Wrap critical Mongo methods with retry_on_connection_failure
 {
-  Mongo::Collection                => [
-    :aggregate, :count, :capped?, :distinct, :drop, :drop_index, :drop_indexes,
-    :ensure_index, :find_one, :find_and_modify, :group, :index_information,
-    :options, :stats, :map_reduce
-  ],
-  Mongo::CollectionOperationWriter => [:send_write_operation, :batch_message_send],
-  Mongo::CollectionCommandWriter   => [:send_write_command, :batch_message_send]
+  # Most calls use a cursor under the covers to return the result
+  # If the primary is lost and it connects to a different server an expired cursor exception is raised
+  Mongo::Cursor     => [:refresh],
 
+  # These methods do not use a Cursor
+  Mongo::Collection => [:insert, :remove, :update]
 }.each_pair do |klass, methods|
   methods.each do |method|
     original_method = "#{method}_original".to_sym

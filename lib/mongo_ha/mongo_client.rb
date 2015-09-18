@@ -1,7 +1,7 @@
 require 'mongo'
 module MongoHA
   module MongoClient
-    CONNECTION_RETRY_OPTS = [:reconnect_attempts, :reconnect_retry_seconds, :reconnect_retry_multiplier, :reconnect_max_retry_seconds]
+    CONNECTION_RETRY_OPTS    = [:reconnect_attempts, :reconnect_retry_seconds, :reconnect_retry_multiplier, :reconnect_max_retry_seconds]
 
     # The following errors occur when mongos cannot connect to the shard
     # They require a retry to resolve them
@@ -50,8 +50,6 @@ module MongoHA
             end
           end
 
-          alias_method :receive_message_original, :receive_message
-          alias_method :connect_original, :connect
           alias_method :valid_opts_original, :valid_opts
           alias_method :setup_original, :setup
 
@@ -60,22 +58,6 @@ module MongoHA
           # Prevent multiple threads from trying to reconnect at the same time during
           # connection failures
           @@failover_mutex = Mutex.new
-          # Wrap internal networking calls with retry logic
-
-          # Do not stub out :send_message_with_gle or :send_message
-          # It modifies the message, see CollectionWriter#send_write_operation
-
-          def receive_message(*args)
-            retry_on_connection_failure do
-              receive_message_original *args
-            end
-          end
-
-          def connect(*args)
-            retry_on_connection_failure do
-              connect_original *args
-            end
-          end
 
           protected
 
@@ -103,19 +85,21 @@ module MongoHA
       # Example:
       #   connection.retry_on_connection_failure { |retried| connection.ping }
       def retry_on_connection_failure(&block)
-        raise "Missing mandatory block parameter on call to Mongo::Connection#retry_on_connection_failure" unless block
-        retried = false
+        raise 'Missing mandatory block parameter on call to Mongo::Connection#retry_on_connection_failure' unless block
+        # No need to double retry calls
+        return block.call(false) if Thread.current[:mongo_ha_active?]
+        retried        = false
         mongos_retries = 0
         begin
-          result = block.call(retried)
-          retried = false
+          Thread.current[:mongo_ha_active?] = true
+          result                      = block.call(retried)
+          retried                     = false
           result
         rescue Mongo::ConnectionFailure => exc
           # Retry if reconnected, but only once to prevent an infinite loop
           logger.warn "Connection Failure: '#{exc.message}' [#{exc.error_code}]"
           if !retried && _reconnect
             retried = true
-            # TODO There has to be a way to flush the connection pool of all inactive connections
             retry
           end
           raise exc
@@ -125,7 +109,7 @@ module MongoHA
           # it sometimes gets: "not master and slaveok=false"
           if exc.result
             error = exc.result['err'] || exc.result['errmsg']
-            close if error && error.include?("not master")
+            close if error && error.include?('not master')
           end
 
           # These get returned when connected to a local mongos router when it in turn
@@ -140,12 +124,15 @@ module MongoHA
             retried = true
             Kernel.sleep(0.5)
             logger.warn "[#{primary.inspect}] Router Connection Failure. Retry ##{mongos_retries}. Exc: '#{exc.message}' [#{exc.error_code}]"
-            # TODO Is there a way to flush the connection pool of all inactive connections
             retry
           end
           raise exc
+        ensure
+          Thread.current[:mongo_ha_active?] = false
         end
       end
+
+      protected
 
       # Call this method whenever a Mongo::ConnectionFailure Exception
       # has been raised to re-establish the connection
@@ -155,35 +142,35 @@ module MongoHA
       #
       # Returns whether the connection is connected again
       def _reconnect
-        logger.debug "Going to reconnect"
+        logger.debug 'Going to reconnect'
 
         # Prevent other threads from invoking reconnect logic at the same time
         @@failover_mutex.synchronize do
           # Another thread may have already failed over the connection by the
           # time this threads gets in
+          begin
+            ping
+          rescue Mongo::ConnectionFailure
+            # Connection still not available, run code below
+          end
+
           if active?
             logger.info "Connected to: #{primary.inspect}"
             return true
           end
 
-          # Close all sockets that are not checked out so that other threads not
-          # currently waiting on Mongo, don't get bad connections and have to
-          # retry each one in turn
-          @primary_pool.close if @primary_pool
-
           if reconnect_attempts > 0
             # Wait for other threads to finish working on their sockets
-            retries = 1
+            retries       = 1
             retry_seconds = reconnect_retry_seconds
             begin
               logger.warn "Connection unavailable. Waiting: #{retry_seconds} seconds before retrying"
               sleep retry_seconds
-              # Call original connect method since it is already within a retry block
-              connect_original
+              ping
             rescue Mongo::ConnectionFailure => exc
               if retries < reconnect_attempts
-                retries += 1
-                retry_seconds *=  reconnect_retry_multiplier
+                retries       += 1
+                retry_seconds *= reconnect_retry_multiplier
                 retry_seconds = reconnect_max_retry_seconds if retry_seconds > reconnect_max_retry_seconds
                 retry
               end
@@ -195,7 +182,6 @@ module MongoHA
           end
           connected?
         end
-
       end
 
     end

@@ -153,7 +153,7 @@ Using the above default values, will result in retry connects at the following i
 
 There is really only one place to test something like `mongo_ha` and that is in
 a high volume mission critical production environment.
-The initial code in this gem was created over 2 years with MongoDB running in an
+This gem was created and tested with MongoDB running in an
 enterprise production environment with hundreds of connections to Mongo servers
 in remote data centers across a WAN. It adds high availability to standalone
 MongoDB servers, replica-sets, and sharded clusters.

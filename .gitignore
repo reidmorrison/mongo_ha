@@ -25,4 +25,4 @@ Gemfile.lock
 # .ruby-version
 # .ruby-gemset
 
-/nbproject/private/
+.idea
