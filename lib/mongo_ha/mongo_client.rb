@@ -15,7 +15,7 @@ module MongoHA
     #   Operation failed with the following exception: Bad file descriptor - Bad file descriptor:Bad file descriptor - Bad file descriptor
     #   Failed to connect to primary node.
     #   10009: ReplicaSetMonitor no master found for set: mdbb
-    MONGOS_CONNECTION_ERRORS = [
+    OPERATION_FAILURE_ERRORS = [
       'socket exception',
       'Connection reset by peer',
       'transport error',
@@ -29,6 +29,7 @@ module MongoHA
       'not master',
       'Timed out waiting on socket',
       "didn't get writeback",
+      'interrupted at shutdown'
     ]
 
     module InstanceMethods
@@ -59,7 +60,7 @@ module MongoHA
           # connection failures
           @@failover_mutex = Mutex.new
 
-          protected
+          private
 
           def valid_opts(*args)
             valid_opts_original(*args) + CONNECTION_RETRY_OPTS
@@ -103,6 +104,14 @@ module MongoHA
             retry
           end
           raise exc
+        rescue Mongo::AuthenticationError => exc
+          # Retry once due to rare failures during authentication against MongoDB V3 servers
+          logger.warn "Authentication Failure: '#{exc.message}' [#{exc.error_code}]"
+          if !retried && _reconnect
+            retried = true
+            retry
+          end
+          raise exc
         rescue Mongo::OperationFailure => exc
           # Workaround not master issue. Disconnect connection when we get a not master
           # error message. Master checks for an exact match on "not master", whereas
@@ -117,7 +126,7 @@ module MongoHA
           # since it's connections to multiple remote shards may have failed.
           # Disconnecting the current connection will not help since it is just to the mongos router
           # First make sure it is connected to the mongos router
-          raise exc unless (MONGOS_CONNECTION_ERRORS.any? { |err| exc.message.include?(err) }) || (exc.message.strip == ':')
+          raise exc unless (OPERATION_FAILURE_ERRORS.any? { |err| exc.message.include?(err) }) || (exc.message.strip == ':')
 
           mongos_retries += 1
           if mongos_retries <= 60
@@ -132,7 +141,7 @@ module MongoHA
         end
       end
 
-      protected
+      private
 
       # Call this method whenever a Mongo::ConnectionFailure Exception
       # has been raised to re-establish the connection
