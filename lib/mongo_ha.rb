@@ -22,3 +22,7 @@ Mongo::MongoClient.send(:include, MongoHA::MongoClient::InstanceMethods)
     end
   end
 end
+
+# Drop the max ping time to a more respectable time. Assuming it is in ms.
+Mongo::Pool.send(:remove_const, :MAX_PING_TIME)
+Mongo::Pool::MAX_PING_TIME = 5_000
