@@ -112,6 +112,13 @@ module MongoHA
             retry
           end
           raise exc
+        rescue Mongo::OperationTimeout => exc
+          logger.warn "OperationTimeout: #{exc.message}"
+          if !retried && _reconnect
+            retried = true
+            retry
+          end
+          raise exc
         rescue Mongo::OperationFailure => exc
           # Workaround not master issue. Disconnect connection when we get a not master
           # error message. Master checks for an exact match on "not master", whereas
