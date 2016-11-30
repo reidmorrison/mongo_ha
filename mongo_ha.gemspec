@@ -14,9 +14,9 @@ Gem::Specification.new do |s|
   s.homepage    = 'https://github.com/reidmorrison/mongo_ha'
   s.summary     = 'High availability for the mongo ruby driver'
   s.description = 'Automatic reconnects and recovery when replica-set changes, or connections are lost, with transparent recovery'
-  s.files       = Dir['lib/**/*', 'LICENSE.txt', 'Rakefile', 'README.md']
+  s.files       = Dir['lib/**/*', 'LICENSE.txt', 'README.md']
   s.test_files  = Dir['test/**/*']
   s.license     = 'Apache-2.0'
   s.has_rdoc    = true
-  s.add_dependency 'mongo', '~> 1.10'
+  s.add_dependency 'mongo', '~> 2.0'
 end
