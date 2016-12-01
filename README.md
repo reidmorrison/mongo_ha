@@ -24,6 +24,9 @@ servers with reconnect attempts.
 
 Supports Ruby Mongo driver V1 and V2
 
+NOTE: The Ruby Mongo driver V2.4.0 does not work yet, since it sometimes fails to refresh its view of the
+ replicaset after `cluster.scan!` is called. Use V2.3 for now.
+
 `mongo_ha` transparently supports `MongoMapper` and `Mongoid` which use the mongo ruby driver.
 
 ## Installation
