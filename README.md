@@ -4,7 +4,24 @@ High availability for the mongo ruby driver. Automatic reconnects and recovery w
 
 ## Status
 
-Production Ready: Used every day in an enterprise environment across remote data centers.
+_Deprecated_. 
+
+Trying to monkey patch the Mongo Ruby driver has become nearly impossible. As a result we have submitted all the 
+fixes in the mongo_ha gem as a Pull Request (PR) to the Mongo Ruby driver directly: https://github.com/mongodb/mongo-ruby-driver/pull/852
+
+If you can add your voice to getting this PR accepted it will be a significant help.
+
+Until the PR is accepted, remove the `mongo_ha` gem and add the following into your Gemfile:
+
+~~~ruby
+gem 'mongo', git: 'https://github.com/rocketjob/mongo-ruby-driver.git', branch: 'feature/write_retry'
+~~~
+
+The above PR also includes several other fixes not possible in the `mongo_ha` gem. 
+We have not seen any mongo HA issues in production since making the switch to this fork.
+
+We will continue to keep the PR fork updated as new releases of the MongoDB Ruby client gem are released.
+Create an issue if a new client version is released and this fork has not pulled it in yet.
 
 ## Overview
 
