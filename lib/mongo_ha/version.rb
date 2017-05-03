@@ -1,3 +1,3 @@
 module MongoHA #:nodoc
-  VERSION = '2.0.1'
+  VERSION = '2.4.2'
 end
