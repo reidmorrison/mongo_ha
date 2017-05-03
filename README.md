@@ -13,9 +13,9 @@ There are still a few outstanding changes:
 
 ## Note
 
-For now, the version of mongo_ha in master requires the master version of mongo.
+In order to use mongo_ha with the Mongo Ruby Client v2.4 or greater it requires the latest code from master. 
 
-I.e. Put the following in your `Gemfile`:
+To use V2.4 or greater add the following to your `Gemfile`:
 
 ~~~ruby
 gem 'mongo', git: 'https://github.com/mongodb/mongo-ruby-driver.git'
@@ -39,9 +39,6 @@ connectivity to the Mongo server(s). This is to prevent swamping the mongo
 servers with reconnect attempts.
 
 Supports Ruby Mongo driver V1 and V2
-
-NOTE: The Ruby Mongo driver V2.4.0 does not work yet, since it sometimes fails to refresh its view of the
- replicaset after `cluster.scan!` is called. Use V2.3 for now.
 
 `mongo_ha` transparently supports `MongoMapper` and `Mongoid` which use the mongo ruby driver.
 
