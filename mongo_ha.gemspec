@@ -18,5 +18,5 @@ Gem::Specification.new do |s|
   s.test_files  = Dir['test/**/*']
   s.license     = 'Apache-2.0'
   s.has_rdoc    = true
-  s.add_dependency 'mongo', '~> 2.4'
+  s.add_dependency 'mongo', '~> 2.5'
 end
