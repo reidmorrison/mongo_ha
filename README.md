@@ -6,21 +6,14 @@ High availability for the mongo ruby driver. Automatic reconnects and recovery w
 
 Most of the features of this gem were accepted into the mongo-ruby-client gem. :tada:
 
-There are still a few outstanding changes:
+There are still a few outstanding changes that are only available with this gem:
 * Retry on writes due to a master change.
 * Retry on writes due to loss of network connectivity.
 * Retry on reads during an operation failure other than when in a cluster.
 
 ## Note
 
-In order to use mongo_ha with the Mongo Ruby Client v2.4 or greater it requires the latest code from master. 
-
-To use V2.4 or greater add the following to your `Gemfile`:
-
-~~~ruby
-gem 'mongo', git: 'https://github.com/mongodb/mongo-ruby-driver.git'
-gem 'mongo_ha', git: 'https://github.com/reidmorrison/mongo_ha.git'
-~~~
+It is recommended to use mongo_ha v2.5 along with the Mongo Ruby Client v2.5 to get the latest HA capabilities. 
 
 ## Overview
 
@@ -38,16 +31,12 @@ In the event of a connection failure, only one thread will attempt to re-establi
 connectivity to the Mongo server(s). This is to prevent swamping the mongo
 servers with reconnect attempts.
 
-Supports Ruby Mongo driver V1 and V2
-
-`mongo_ha` transparently supports `MongoMapper` and `Mongoid` which use the mongo ruby driver.
-
 ## Installation
 
 Add to Gemfile:
 
 ```ruby
-gem 'mongo_ha'
+gem 'mongo_ha', '~> 2.5'
 ```
 
 Or for standalone environments
