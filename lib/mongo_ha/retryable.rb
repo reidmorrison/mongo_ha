@@ -2,42 +2,28 @@ require 'mongo/retryable'
 
 module Mongo
   module Retryable
-
-    def read_with_retry
+    def legacy_write_with_retry(server = nil)
       attempt = 0
       begin
         attempt += 1
-        yield
+        yield(server || cluster.next_primary)
       rescue Error::SocketError, Error::SocketTimeoutError => e
+        server = nil
         raise(e) if attempt > cluster.max_read_retries
         log_retry(e)
         cluster.scan!
         retry
       rescue Error::OperationFailure => e
-        raise(e) if !e.retryable? || (attempt > cluster.max_read_retries)
-        log_retry(e)
-        cluster.sharded? ? sleep(cluster.read_retry_interval) : cluster.scan!
-        retry
-      end
-    end
-
-    def write_with_retry(session, server_selector)
-      attempt = 0
-      begin
-        attempt += 1
-        yield(server_selector.call)
-      rescue Error::SocketError, Error::SocketTimeoutError => e
+        server = nil
         raise(e) if attempt > cluster.max_read_retries
-        log_retry(e)
-        cluster.scan!
-        retry
-      rescue Error::OperationFailure => e
-        raise(e) if !e.write_retryable? || (attempt > cluster.max_read_retries)
-        log_retry(e)
-        cluster.scan!
-        retry
+        if e.write_retryable?
+          log_retry(e)
+          cluster.scan!
+          retry
+        else
+          raise(e)
+        end
       end
     end
-
   end
 end

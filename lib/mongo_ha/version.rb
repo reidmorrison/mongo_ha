@@ -1,3 +1,3 @@
-module MongoHA #:nodoc
-  VERSION = '2.5.0'
+module MongoHA
+  VERSION = '2.5.1'.freeze
 end
