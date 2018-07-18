@@ -9,7 +9,6 @@ Most of the features of this gem were accepted into the mongo-ruby-client gem. :
 There are still a few outstanding changes that are only available with this gem:
 * Retry on writes due to a master change.
 * Retry on writes due to loss of network connectivity.
-* Retry on reads during an operation failure other than when in a cluster.
 
 ## Note
 
