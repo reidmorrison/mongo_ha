@@ -12,7 +12,7 @@ There are still a few outstanding changes that are only available with this gem:
 
 ## Note
 
-It is recommended to use mongo_ha v2.5 along with the Mongo Ruby Client v2.5 to get the latest HA capabilities. 
+It is recommended to use `mongo_ha` v2.6 along with the Mongo Ruby Client v2.6 to get the latest HA capabilities.
 
 ## Overview
 
@@ -35,7 +35,7 @@ servers with reconnect attempts.
 Add to Gemfile:
 
 ```ruby
-gem 'mongo_ha', '~> 2.5'
+gem 'mongo_ha', '~> 2.6'
 ```
 
 Or for standalone environments
