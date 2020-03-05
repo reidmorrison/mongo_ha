@@ -1,4 +1,5 @@
 require 'mongo/retryable'
+require 'timeout'
 
 module Mongo
   module Retryable
@@ -7,8 +8,10 @@ module Mongo
       begin
         attempt += 1
         yield(server || cluster.next_primary)
-      rescue Error::SocketError, Error::SocketTimeoutError => e
+      rescue Error::SocketError, Error::SocketTimeoutError, Timeout::Error => e
         server = nil
+        # Mongo also raises the generic Timeout, so check the backtrace to make sure it was from mongo.
+        raise(e) if e.is_a?(::Timeout::Error) && e.backtrace && !e.backtrace.first.include?("/mongo/")
         raise(e) if attempt > cluster.max_read_retries || (session && session.in_transaction?)
         log_retry(e)
         cluster.scan!
